@@ -2,6 +2,7 @@ package com.rdc.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import com.rdc.dto.CategoryDto;
 import com.rdc.dto.CategoryResponse;
@@ -32,7 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
 //		category.setIsActive(categoryDto.getIsActive());
 
 		Category category = mapper.map(categoryDto, Category.class);
-		
+
 		category.setIsDeleted(false);
 		category.setCreatedBy(1);
 		category.setCreatedOn(new Date());
@@ -47,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public List<CategoryDto> getAllCategory() {
-		List<Category> categories = categoryRepo.findAll();
+		List<Category> categories = categoryRepo.findByIsDeletedFalse();
 
 		List<CategoryDto> categoryDtoList = categories.stream().map(cat -> mapper.map(cat, CategoryDto.class)).toList();
 
@@ -61,6 +62,32 @@ public class CategoryServiceImpl implements CategoryService {
 		List<CategoryResponse> categoryList = categories.stream().map(cat -> mapper.map(cat, CategoryResponse.class))
 				.toList();
 		return categoryList;
+	}
+
+
+	@Override
+	public CategoryDto getCategoryById(Integer id) {
+
+		Optional<Category> findByCatgeory = categoryRepo.findByIdAndIsDeletedFalse(id);
+
+		if (findByCatgeory.isPresent()) {
+			Category category = findByCatgeory.get();
+			return mapper.map(category, CategoryDto.class);
+		}
+		return null;
+	}
+
+	@Override
+	public Boolean deleteCategory(Integer id) {
+		Optional<Category> findByCatgeory = categoryRepo.findById(id);
+
+		if (findByCatgeory.isPresent()) {
+			Category category = findByCatgeory.get();
+			category.setIsDeleted(true);
+			categoryRepo.save(category);
+			return true;
+		}
+		return false;
 	}
 
 }
