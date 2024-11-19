@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.rdc.dto.CategoryDto;
 import com.rdc.dto.CategoryResponse;
+import com.rdc.exception.ResourceNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.rdc.entity.Category;
 import com.rdc.service.CategoryService;
 
-
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/category")
 public class CategoryController {
@@ -57,13 +59,16 @@ public class CategoryController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<?> getCategortDetailsById(@PathVariable Integer id) {
+	public ResponseEntity<?> getCategortDetailsById(@PathVariable Integer id) throws Exception {
+
 		CategoryDto categoryDto = categoryService.getCategoryById(id);
 		if (ObjectUtils.isEmpty(categoryDto)) {
-			return new ResponseEntity<>("Category not found with Id=" + id, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>("Internal Server Error", HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<>(categoryDto, HttpStatus.OK);
+
 	}
+
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id) {

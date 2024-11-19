@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.rdc.dto.CategoryDto;
 import com.rdc.dto.CategoryResponse;
+import com.rdc.exception.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -85,12 +86,14 @@ public class CategoryServiceImpl implements CategoryService {
 
 
 	@Override
-	public CategoryDto getCategoryById(Integer id) {
+	public CategoryDto getCategoryById(Integer id) throws Exception {
 
-		Optional<Category> findByCatgeory = categoryRepo.findByIdAndIsDeletedFalse(id);
+//		Optional<Category> findByCatgeory = categoryRepo.findByIdAndIsDeletedFalse(id);
+		Category category = categoryRepo.findByIdAndIsDeletedFalse(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Category not found with id=" + id));
 
-		if (findByCatgeory.isPresent()) {
-			Category category = findByCatgeory.get();
+		if (!ObjectUtils.isEmpty(category)) {
+			category.getName().toUpperCase();
 			return mapper.map(category, CategoryDto.class);
 		}
 		return null;
